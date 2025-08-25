@@ -13,8 +13,7 @@ def limpar_cnpj(s: str) -> str:
 def consulta_publica(cnpj: str) -> dict:
     url = f"{BASE_URL}/{cnpj}"
     r = requests.get(url, timeout=30)
-
-    return r.json() if r.status_code == 200 else {"erro": f"{r.status_code}"}
+    return r.json() if r.status_code == 200 else {"erro": f"HTTP {r.status_code}"}
 
 def extrair_campos(dados: dict):
     if "erro" in dados:
@@ -44,17 +43,15 @@ def index():
         wb.save(file_stream)
         file_stream.seek(0)
 
-        return send_file(file_stream,
-                         as_attachment=True,
-                         download_name="resultado.xlsx",
-                         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        return send_file(file_stream, as_attachment=True, download_name="resultado.xlsx")
 
     return """
     <form method="post">
-      <textarea name="cnpjs" rows="10" cols="40"></textarea><br>
-      <button type="submit">Consultar e baixar Excel</button>
+        <textarea name="cnpjs" rows="10" cols="40"></textarea><br>
+        <button type="submit">Consultar e baixar Excel</button>
     </form>
     """
 
-if __name__ == "__main__":
-    app.run()
+# 🚨 IMPORTANTE: para rodar no Vercel
+def handler(event, context):
+    return app(event, context)
